@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>File Vault Widget</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ── Compact Icon ──────────────────────────────── -->
+  <div id="compact" class="compact">
+    <div class="compact-icon">🗂️</div>
+    <div class="compact-pulse"></div>
+  </div>
+
+  <!-- ── Expanded Panel ────────────────────────────── -->
+  <div id="expanded" class="expanded hidden">
+    <div class="expanded-header">
+      <div class="expanded-title">
+        <span class="expanded-icon">📂</span>
+        <span>Drop into folder</span>
+      </div>
+      <div class="drag-file-name" id="dragFileName"></div>
+    </div>
+
+    <div class="folder-list" id="folderList">
+      <!-- Populated by JS -->
+    </div>
+
+    <div class="new-folder-section">
+      <div class="new-folder-row">
+        <input type="text" id="newFolderInput" class="new-folder-input" placeholder="New folder name…" />
+        <button id="createFolderBtn" class="create-btn">+</button>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast hidden"></div>
+  </div>
+
+  <script src="widget.js"></script>
+</body>
+</html>

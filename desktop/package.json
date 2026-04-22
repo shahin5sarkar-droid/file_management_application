@@ -1,0 +1,25 @@
+{
+  "name": "file-vault",
+  "version": "1.0.0",
+  "description": "File Vault — Desktop drag-and-drop file organizer widget",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --mac"
+  },
+  "dependencies": {
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "electron": "^28.1.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.filevault.app",
+    "productName": "File Vault",
+    "mac": {
+      "category": "public.app-category.utilities",
+      "target": "dmg"
+    }
+  }
+}

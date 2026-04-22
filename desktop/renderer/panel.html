@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>File Vault — Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0d1117;--bg2:#161b22;--bg-card:rgba(22,27,34,0.85);--bg-glass:rgba(255,255,255,0.04);--bg-hover:rgba(255,255,255,0.07);--accent:#4f8ef7;--accent-soft:rgba(79,142,247,0.15);--accent-glow:rgba(79,142,247,0.35);--accent-2:#7c5cf0;--success:#3fb950;--danger:#f85149;--text:#e6edf3;--text2:#8b949e;--text3:#484f58;--border:rgba(255,255,255,0.08);--border-accent:rgba(79,142,247,0.45);--radius:12px;--shadow:0 8px 40px rgba(0,0,0,0.6)}
+    html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:transparent;color:var(--text);-webkit-font-smoothing:antialiased;overflow:hidden}
+    ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--text3);border-radius:99px}
+
+    .window{width:100%;height:100%;background:var(--bg);border:1px solid var(--border);border-radius:16px;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow)}
+
+    /* Title bar */
+    .titlebar{-webkit-app-region:drag;height:42px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;flex-shrink:0}
+    .titlebar-dots{display:flex;gap:7px;-webkit-app-region:no-drag}
+    .dot{width:12px;height:12px;border-radius:50%;cursor:pointer;transition:opacity 0.2s}
+    .dot:hover{opacity:0.8}
+    .dot-close{background:#f85149}.dot-min{background:#e3b341}.dot-max{background:#3fb950}
+    .titlebar-title{flex:1;text-align:center;font-size:13px;font-weight:600;color:var(--text2)}
+
+    /* Layout */
+    .panel-layout{display:flex;flex:1;overflow:hidden}
+    .sidebar{width:220px;min-width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+    .sidebar-section{padding:12px;flex:1;overflow-y:auto}
+    .sidebar-label{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);padding:8px 8px 6px}
+    .sidebar-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:all 0.2s;font-size:13px;color:var(--text2)}
+    .sidebar-item:hover{background:var(--bg-hover)}
+    .sidebar-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+    .sidebar-item .count{margin-left:auto;font-size:10px;background:var(--bg-glass);border:1px solid var(--border);padding:1px 6px;border-radius:99px;color:var(--text3)}
+    .sidebar-item.active .count{background:var(--accent-soft);border-color:var(--accent-glow);color:var(--accent)}
+
+    .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+    .main-header{padding:20px 24px;border-bottom:1px solid var(--border);flex-shrink:0}
+    .main-header h2{font-size:18px;font-weight:700;letter-spacing:-0.3px}
+    .main-header p{font-size:12px;color:var(--text2);margin-top:2px}
+    .main-body{flex:1;overflow-y:auto;padding:20px 24px}
+
+    /* Folder grid */
+    .folder-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+    .folder-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:all 0.2s;position:relative}
+    .folder-card:hover{border-color:var(--border-accent);transform:translateY(-2px);box-shadow:var(--shadow)}
+    .folder-card .emoji{font-size:28px;margin-bottom:8px}
+    .folder-card .name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .folder-card .meta{font-size:11px;color:var(--text3);margin-top:2px}
+    .folder-card .actions{position:absolute;top:8px;right:8px;display:flex;gap:3px;opacity:0;transition:opacity 0.2s}
+    .folder-card:hover .actions{opacity:1}
+    .icon-btn{width:24px;height:24px;border-radius:6px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;transition:all 0.2s}
+    .icon-btn:hover{background:var(--bg-hover);color:var(--text)}
+    .icon-btn.danger:hover{background:rgba(248,81,73,0.15);color:var(--danger)}
+
+    /* File list */
+    .file-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg-card);margin-bottom:6px;transition:all 0.2s}
+    .file-item:hover{border-color:var(--border-accent);background:var(--bg-hover)}
+    .file-ext{width:36px;height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;text-transform:uppercase;flex-shrink:0}
+    .ext-pdf{background:rgba(248,81,73,0.15);color:#f85149;border:1px solid rgba(248,81,73,0.3)}
+    .ext-doc{background:rgba(79,142,247,0.15);color:#4f8ef7;border:1px solid rgba(79,142,247,0.3)}
+    .ext-img{background:rgba(63,185,80,0.15);color:#3fb950;border:1px solid rgba(63,185,80,0.3)}
+    .ext-other{background:rgba(124,92,240,0.15);color:#7c5cf0;border:1px solid rgba(124,92,240,0.3)}
+    .file-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .file-meta{font-size:11px;color:var(--text3)}
+    .file-info{flex:1;min-width:0}
+
+    /* Empty */
+    .empty{text-align:center;padding:48px 20px;color:var(--text3)}
+    .empty .icon{font-size:36px;margin-bottom:10px}
+    .empty .title{font-size:14px;font-weight:600;color:var(--text2);margin-bottom:4px}
+
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;font-size:12.5px;font-weight:600;font-family:inherit;border:1px solid transparent;cursor:pointer;transition:all 0.2s;outline:none}
+    .btn-primary{background:var(--accent);color:#fff;box-shadow:0 0 12px var(--accent-glow)}
+    .btn-primary:hover{box-shadow:0 0 20px var(--accent-glow)}
+    .btn-ghost{background:transparent;color:var(--text2);border-color:var(--border)}
+    .btn-ghost:hover{background:var(--bg-hover);color:var(--text)}
+    .btn-danger{background:rgba(248,81,73,0.12);color:var(--danger);border-color:rgba(248,81,73,0.3)}
+
+    .input{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:12.5px;font-family:inherit;color:var(--text);outline:none;transition:all 0.2s}
+    .input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+
+    /* Modal overlay */
+    .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:50;display:flex;align-items:center;justify-content:center}
+    .modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;width:340px;box-shadow:var(--shadow)}
+    .modal-box h3{font-size:14px;font-weight:700;margin-bottom:6px}
+    .modal-box p{font-size:12px;color:var(--text2);margin-bottom:16px}
+    .modal-actions{display:flex;gap:8px;justify-content:flex-end}
+    .modal-hidden{display:none}
+  </style>
+</head>
+<body>
+  <div class="window">
+    <!-- Title bar -->
+    <div class="titlebar">
+      <div class="titlebar-dots">
+        <div class="dot dot-close" id="closeBtn" title="Close"></div>
+        <div class="dot dot-min" id="minBtn" title="Minimize"></div>
+        <div class="dot dot-max" title="Maximize"></div>
+      </div>
+      <div class="titlebar-title">File Vault — Manager</div>
+    </div>
+
+    <div class="panel-layout">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-label">Folders</div>
+          <div id="sidebarFolders"></div>
+        </div>
+      </div>
+
+      <!-- Main -->
+      <div class="main">
+        <div class="main-header">
+          <h2 id="mainTitle">All Folders</h2>
+          <p id="mainSub">Manage your organized files</p>
+        </div>
+        <div class="main-body" id="mainBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm modal -->
+  <div id="confirmModal" class="modal-bg modal-hidden">
+    <div class="modal-box">
+      <h3 id="confirmTitle">Confirm</h3>
+      <p id="confirmMsg">Are you sure?</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="confirmCancel">Cancel</button>
+        <button class="btn btn-danger" id="confirmOk">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="panel.js"></script>
+</body>
+</html>
